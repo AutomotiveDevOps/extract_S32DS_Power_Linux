@@ -44,7 +44,7 @@ Back in the day (circa 2012), CodeSourcery tried to merge PowerPC VLE (Variable 
 - **Result**: VLE support lived on in out-of-tree branches and forks (like `gcc-4.9.4` with VLE patches), maintained by NXP/CodeSourcery and the community, because FSF GCC proper wouldn't take it.
 
 So here we are in 2025, extracting installers and dealing with Java hell, because someone decided that maintaining clean codebase boundaries was more important than supporting an entire embedded architecture properly. And now you have to choose between:
-- Using an out-of-tree GCC fork (if you can find it)
+- Using an out-of-tree GCC fork—not just any fork, but **GCC 4.9** (released April 2014, with 4.9.4 in August 2016). That's right, we're stuck with an 11-year-old compiler because the maintainers said "too invasive." (if you can find it)
 - Paying for a proprietary toolchain with a dongle-based license system
 - Dealing with this installer nightmare
 
@@ -72,8 +72,6 @@ This repository contains extraction scripts to:
 - Recursively extract nested ZIP files (`extract_all_zips.py`)
 - Extract specific payloads (`extract_payload.py`)
 - Target specific components (`extract_until_targets.py`)
-
-**Coming soon**: A proper install script that sets up the toolchain in `/usr/local` or a user directory, adds it to PATH, and lets you forget this installer ever existed.
 
 ## Contributing
 
