@@ -48,7 +48,20 @@ So here we are in 2025, extracting installers and dealing with Java hell, becaus
 - Paying for a proprietary toolchain with a dongle-based license system
 - Dealing with this installer nightmare
 
-**The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
+### The Scale of the Problem: Billions of Devices, Zero Mainline Support
+
+Just how big is this problem? Let's put it in perspective:
+
+- **Over 1 billion Power Architecture chips** have been shipped since 1991 across automotive, industrial automation, aerospace, defense, medical devices, and telecommunications.
+- **Every Caterpillar ECM** (Engine Control Module) runs on PowerPC—that's every heavy equipment engine control system on the planet. Think construction sites, mining operations, ships, generators—the infrastructure that keeps civilization running.
+- **Nearly every 2009 GM North America vehicle** had an MPC5xx PowerPC processor in its engine controller. Ford, Jaguar, Land Rover, and Volvo vehicles historically used PowerPC-based chips in engines and transmissions.
+- **Automotive ECUs everywhere**: Engine control modules, transmission controllers, electronic brake systems (Continental AG collaborated with Freescale on tri-core e200 processors for brake systems), and more.
+- **Industrial automation, aerospace, and defense** systems rely on PowerPC for mission-critical applications.
+- As of 2010, Power Architecture was the **#1 worldwide market share leader in 32-bit microprocessors** (No. 2 in 64-bit CPUs), representing **$4.4 billion of the microprocessor market**.
+
+All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck with proprietary toolchains, out-of-tree GCC forks, or... *this installer*.
+
+**The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries with billions of deployed devices build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
 
 ## Step 1: Download the Installer
 
