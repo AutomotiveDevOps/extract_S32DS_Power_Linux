@@ -31,18 +31,18 @@ Before we dive into extracting this mess, let's talk about *why* you're stuck us
 
 ### In the Beginning, There Was Apple, Motorola, and IBM
 
-Once upon a time (1991), the AIM alliance (Apple, IBM, Motorola) came together to create the PowerPC architecture. What started as a desktop computing revolution would eventually become the workhorse of embedded systems—powering everything from the infrastructure that keeps civilization running to the vehicles you drive.
+Once upon a time (1991), the [AIM alliance](https://en.wikipedia.org/wiki/AIM_alliance) (Apple, IBM, Motorola) came together to create the [PowerPC architecture](https://en.wikipedia.org/wiki/PowerPC). What started as a desktop computing revolution would eventually become the workhorse of embedded systems—powering everything from the infrastructure that keeps civilization running to the vehicles you drive.
 
 **The great migration:**
-- **IBM** focused on servers and the POWER line (eventually becoming Power Systems and Power10/Power11), leaving embedded PowerPC to Motorola's semiconductor division
-- **Apple** went to Intel in 2005 (then ditched Intel for Apple Silicon in 2020, completing the migration)
-- **Motorola** (then Freescale, then NXP) kept the embedded PowerPC torch burning
+- **IBM** focused on servers and the [POWER](https://en.wikipedia.org/wiki/IBM_POWER) line (eventually becoming [Power Systems](https://en.wikipedia.org/wiki/IBM_Power_Systems) and Power10/Power11), leaving embedded PowerPC to Motorola's semiconductor division
+- **Apple** went to Intel in 2005 (then ditched Intel for [Apple Silicon](https://en.wikipedia.org/wiki/Apple_silicon) in 2020, completing the migration)
+- **Motorola** (then [Freescale Semiconductor](https://en.wikipedia.org/wiki/Freescale_Semiconductor), then [NXP Semiconductors](https://en.wikipedia.org/wiki/NXP_Semiconductors)) kept the embedded PowerPC torch burning
 
-But here's where it gets interesting: Motorola's embedded microcontroller line, the HC16/HC12 family, was gradually replaced by PowerPC Embedded. This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
+But here's where it gets interesting: Motorola's embedded microcontroller line, the [HC16/HC12](https://en.wikipedia.org/wiki/Freescale_68HC12) family, was gradually replaced by [PowerPC Embedded](https://en.wikipedia.org/wiki/PowerPC#Embedded_PowerPC). This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
 
 ### The Workhorses: Where PowerPC Actually Lives
 
-While PowerPC was making headlines in desktop computers (Power Mac G5, anyone?), the real action was happening in the trenches:
+While PowerPC was making headlines in desktop computers ([Power Mac G5](https://en.wikipedia.org/wiki/Power_Mac_G5), anyone?), the real action was happening in the trenches:
 
 - **Caterpillar ECMs**: Every single Caterpillar engine control module runs PowerPC. Every construction site, every mining operation, every ship, every generator—the infrastructure of modern civilization is running on PowerPC.
 - **John Deere**: Agricultural and construction equipment ECMs running PowerPC
@@ -52,7 +52,7 @@ While PowerPC was making headlines in desktop computers (Power Mac G5, anyone?),
 
 ### The VLE Saga: When GCC Said "Nah, Too Invasive"
 
-Back in the day (circa 2012), CodeSourcery tried to merge PowerPC VLE (Variable Length Encoding) support into GCC mainline. This would have given us a proper open-source compiler for embedded PowerPC chips without needing $10,000 hardware dongles for smoke testing (looking at you, Green Hills).
+Back in the day (circa 2012), CodeSourcery tried to merge PowerPC [VLE (Variable Length Encoding)](https://en.wikipedia.org/wiki/PowerPC#Variable_Length_Encoding) support into GCC mainline. VLE is part of the [Power ISA Book E](https://en.wikipedia.org/wiki/Power_ISA#Book_E) specification, designed specifically for embedded systems. This would have given us a proper open-source compiler for embedded PowerPC chips without needing $10,000 hardware dongles for smoke testing (looking at you, Green Hills).
 
 **Here's what happened:**
 
@@ -79,7 +79,7 @@ We're talking about toolchains that cost tens of thousands of dollars per seat, 
 
 **The diab Compiler: Picked for IP, Not Performance**
 
-Then there's the diab compiler (also known as DIB, or DiabData). This proprietary C/C++ compiler has an interesting history: it started life at Wind River Systems, where it became the default compiler for VxWorks, their real-time operating system. Companies chose it not necessarily because it was better than GCC, but because of **intellectual property protection**.
+Then there's the diab compiler (also known as DIB, or DiabData). This proprietary C/C++ compiler has an interesting history: it started life at Wind River Systems, where it became the default compiler for [VxWorks](https://en.wikipedia.org/wiki/VxWorks), their real-time operating system. Companies chose it not necessarily because it was better than GCC, but because of **intellectual property protection**.
 
 You see, GCC is released under the GPL, which means if you link code compiled with GCC into a proprietary product, you're supposed to make your source available under GPL. For companies with proprietary firmware, proprietary algorithms, or proprietary anything, this is a problem. The diab compiler was specifically chosen because it has **proprietary licensing terms** that allow companies to keep their code closed—even if the compiler itself is based on decades-old technology.
 
@@ -104,10 +104,10 @@ Just how big is this problem? Let's put it in perspective:
 
 - **Over 1 billion Power Architecture chips** have been shipped since 1991 across automotive, industrial automation, aerospace, defense, medical devices, and telecommunications.
 - **Every Caterpillar ECM** (Engine Control Module) runs on PowerPC—that's every heavy equipment engine control system on the planet. Think construction sites, mining operations, ships, generators—the infrastructure that keeps civilization running.
-- **Nearly every 2009 GM North America vehicle** had an MPC5xx PowerPC processor in its engine controller. Ford, Jaguar, Land Rover, and Volvo vehicles historically used PowerPC-based chips in engines and transmissions.
-- **Automotive ECUs everywhere**: Engine control modules, transmission controllers, electronic brake systems (Continental AG collaborated with Freescale on tri-core e200 processors for brake systems), and more.
+- **Nearly every 2009 GM North America vehicle** had an [MPC5xx](https://en.wikipedia.org/wiki/MPC5xx) PowerPC processor in its engine controller. Ford, Jaguar, Land Rover, and Volvo vehicles historically used PowerPC-based chips in engines and transmissions.
+- **Automotive ECUs everywhere**: Engine control modules, transmission controllers, electronic brake systems (Continental AG collaborated with Freescale on tri-core [PowerPC e200](https://en.wikipedia.org/wiki/PowerPC_e200) processors for brake systems), and more.
 - **Industrial automation, aerospace, and defense** systems rely on PowerPC for mission-critical applications.
-- As of 2010, Power Architecture was the **#1 worldwide market share leader in 32-bit microprocessors** (No. 2 in 64-bit CPUs), representing **$4.4 billion of the microprocessor market**.
+- As of 2010, [Power Architecture](https://en.wikipedia.org/wiki/Power_Architecture) was the **#1 worldwide market share leader in 32-bit microprocessors** (No. 2 in 64-bit CPUs), representing **$4.4 billion of the microprocessor market**.
 
 All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck with proprietary toolchains, out-of-tree GCC forks, or... *this installer*.
 
