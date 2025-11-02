@@ -38,7 +38,16 @@ Once upon a time (1991), the [AIM alliance](https://en.wikipedia.org/wiki/AIM_al
 - **Apple** went to Intel in 2005 (then ditched Intel for [Apple Silicon](https://en.wikipedia.org/wiki/Apple_silicon) in 2020, completing the migration)
 - **Motorola** (then [Freescale Semiconductor](https://en.wikipedia.org/wiki/Freescale_Semiconductor), then [NXP Semiconductors](https://en.wikipedia.org/wiki/NXP_Semiconductors)) kept the embedded PowerPC torch burning
 
-But here's where it gets interesting: Motorola's embedded microcontroller line, the [HC16/HC12](https://en.wikipedia.org/wiki/Freescale_68HC12) family, was gradually replaced by [PowerPC Embedded](https://en.wikipedia.org/wiki/PowerPC#Embedded_PowerPC). This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
+### The 68k Family Tree: From Desktop to Embedded
+
+But here's where it gets interesting. Before PowerPC, there was the [Motorola 68000 series](https://en.wikipedia.org/wiki/Motorola_68000_series) (68k family), introduced in 1979 with the 68000 processor. These 32-bit CISC processors powered the computing revolution of the 1980s: the original Apple Macintosh (1984), Commodore Amiga, Atari ST, and even the Sega Genesis game console. The 68000's clean, orthogonal instruction set made it a programmer's dream—until RISC architectures started taking over in the 1990s.
+
+**The embedded evolution:**
+- The [68HC11](https://en.wikipedia.org/wiki/Motorola_68HC11) (1984) brought the 68k architecture to microcontrollers, becoming a staple in automotive and industrial control
+- The [68HC12](https://en.wikipedia.org/wiki/Freescale_68HC12) expanded on the HC11 with enhanced instruction sets and better performance
+- The [68HC16](https://en.wikipedia.org/wiki/Motorola_68HC16) added more features for automotive applications
+
+These 8/16-bit microcontroller variants of the 68k family dominated embedded systems throughout the 1980s and 1990s. But as applications demanded more processing power, Motorola's embedded microcontroller line—the HC16/HC12 family—was gradually replaced by [PowerPC Embedded](https://en.wikipedia.org/wiki/PowerPC#Embedded_PowerPC). This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
 
 ### The Workhorses: Where PowerPC Actually Lives
 
