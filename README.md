@@ -141,39 +141,14 @@ The NXP installer is a self-extracting binary (`.bin`) that contains a shell scr
 
 ### 2.1: Extract the Installer Payload (`extract_payload.py`)
 
-**Purpose**: Extract the ZIP payload from the self-extracting `.bin` installer binary.
-
-The NXP installer is a self-extracting binary that consists of:
-1. A shell script header (handles Java checks, system requirements, etc.)
-2. A ZIP archive payload starting at the first `PK\x03\x04` (ZIP local file header signature)
-
-This script:
-- Reads the `.bin` file and searches for the first ZIP file header signature (`PK\x03\x04`, which is `0x50 0x4B 0x03 0x04`)
-- Extracts everything from that offset to the end of the file as `installer_payload.zip`
-- This ZIP file contains all the actual installer components (JAR files, nested ZIPs, toolchain archives, etc.)
+Extract the ZIP payload from the self-extracting `.bin` installer binary. This is the **first step** in the extraction process.
 
 **Usage**:
 ```bash
 python3 extract_payload.py
 ```
 
-**Default behavior**:
-- Input: `S32DS_Power_Linux_v2017.R1_b171024.bin` (change the `input_filename` variable in the script for different versions)
-- Output: `installer_payload.zip`
-
-**What it does**:
-1. Opens the `.bin` file in binary mode
-2. Searches for the first occurrence of the ZIP signature `PK\x03\x04`
-3. Writes everything from that offset to the end of the file as `installer_payload.zip`
-4. Prints the offset where the ZIP payload starts
-
-**Output example**:
-```
-offset: 12345
-wrote installer_payload.zip
-```
-
-This is the **first step** in the extraction process. Once you have `installer_payload.zip`, you can proceed to extract the nested archives within it.
+See the script's docstring for detailed documentation.
 
 ### 2.2: Extract All Nested Archives (`extract_all_zips.py`)
 
