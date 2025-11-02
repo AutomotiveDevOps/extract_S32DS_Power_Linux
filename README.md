@@ -27,9 +27,11 @@ After too many hoops to get this installer running with Java issues, and the tho
 
 ## Step 1: Download the Installer
 
+**Looking for**: NXP Embedded GCC for Power Architecture, v4.9.4 build 1705 - Linux
+
 **Source**: [NXP S32 Design Studio for Power Architecture](https://www.nxp.com/design/design-center/software/automotive-software-and-tools/s32-design-studio-ide/s32-design-studio-for-power-architecture:S32DS-PA)
 
-Download the Linux installer binary. It's probably named something like `S32DS_Power_Linux_v*.bin` and weighs in at several hundred megabytes of corporate bloatware.
+Download the Linux installer binary. It's probably named something like `S32DS_Power_Linux_v*.bin` and weighs in at several hundred megabytes of corporate bloatware. Inside this installer, we're specifically hunting for the GCC 4.9.4 toolchain (build 1705) that should have been a simple tarball.
 
 ## Step 2: Extract the Installer (TBD)
 
