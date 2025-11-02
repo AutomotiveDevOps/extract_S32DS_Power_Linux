@@ -135,20 +135,81 @@ Automotive, aerospace, heavy machinery, and industrial control systems don't mov
 
 Download the Linux installer binary. It's probably named something like `S32DS_Power_Linux_v*.bin` and weighs in at several hundred megabytes of corporate bloatware. Inside this installer, we're specifically hunting for the GCC 4.9.4 toolchain (build 1705) that should have been a simple tarball.
 
-## Step 2: Extract the Installer (TBD)
+## Step 2: Extract the Installer
 
-*Work in progress* - The extraction scripts in this repository will help you:
-- Extract the `.bin` installer format (which is usually just a shell script + payload)
-- Find and extract the actual toolchain archives
-- Organize the GCC toolchain, libraries, and headers into a sane directory structure
-- Create a simple installation process that doesn't require Java, Eclipse, or your firstborn
+The NXP installer is a self-extracting binary (`.bin`) that contains a shell script wrapper followed by a ZIP archive payload. The extraction process happens in stages:
+
+### 2.1: Extract the Installer Payload (`extract_payload.py`)
+
+**Purpose**: Extract the ZIP payload from the self-extracting `.bin` installer binary.
+
+The NXP installer is a self-extracting binary that consists of:
+1. A shell script header (handles Java checks, system requirements, etc.)
+2. A ZIP archive payload starting at the first `PK\x03\x04` (ZIP local file header signature)
+
+This script:
+- Reads the `.bin` file and searches for the first ZIP file header signature (`PK\x03\x04`, which is `0x50 0x4B 0x03 0x04`)
+- Extracts everything from that offset to the end of the file as `installer_payload.zip`
+- This ZIP file contains all the actual installer components (JAR files, nested ZIPs, toolchain archives, etc.)
+
+**Usage**:
+```bash
+python3 extract_payload.py
+```
+
+**Default behavior**:
+- Input: `S32DS_Power_Linux_v2017.R1_b171024.bin` (change the `input_filename` variable in the script for different versions)
+- Output: `installer_payload.zip`
+
+**What it does**:
+1. Opens the `.bin` file in binary mode
+2. Searches for the first occurrence of the ZIP signature `PK\x03\x04`
+3. Writes everything from that offset to the end of the file as `installer_payload.zip`
+4. Prints the offset where the ZIP payload starts
+
+**Output example**:
+```
+offset: 12345
+wrote installer_payload.zip
+```
+
+This is the **first step** in the extraction process. Once you have `installer_payload.zip`, you can proceed to extract the nested archives within it.
+
+### 2.2: Extract All Nested Archives (`extract_all_zips.py`)
+
+**Purpose**: Recursively extract all nested ZIP files until none remain.
+
+This script finds all `.zip` files, extracts them in place (removing the original ZIP), and repeats until no more ZIP files are found. Useful for fully unpacking the installer payload without stopping.
+
+**Usage**:
+```bash
+python3 extract_all_zips.py
+```
+
+**Note**: By default, this script excludes `installer_payload.zip` from extraction to avoid re-extracting the main payload.
+
+### 2.3: Extract Until Targets Found (`extract_until_targets.py`)
+
+**Purpose**: Extract archives recursively until PowerPC GCC and GDB server components are found.
+
+This script extracts JAR and ZIP files until it finds:
+1. PowerPC GCC compiler (in `Cross_Tools` directories)
+2. P&E GDB Server (`pegdbserver_power_console` binary)
+3. GDI directory (for GDB server)
+
+It stops automatically once all targets are found, saving time if you only need specific components.
+
+**Usage**:
+```bash
+python3 extract_until_targets.py
+```
 
 ## Current Status
 
 This repository contains extraction scripts to:
-- Recursively extract nested ZIP files (`extract_all_zips.py`)
-- Extract specific payloads (`extract_payload.py`)
-- Target specific components (`extract_until_targets.py`)
+- Extract the ZIP payload from `.bin` installer (`extract_payload.py`)
+- Recursively extract all nested ZIP files (`extract_all_zips.py`)
+- Extract until specific target components are found (`extract_until_targets.py`)
 
 ## Contributing
 
