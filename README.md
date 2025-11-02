@@ -25,9 +25,30 @@ After too many hoops to get this installer running with Java issues, and the tho
 - ✅ Actually works in a modern Linux environment
 - ✅ Can be version-controlled and automated
 
-## A Brief History Lesson (Because History Repeats Itself)
+## PowerPC Lore
 
 Before we dive into extracting this mess, let's talk about *why* you're stuck using a proprietary toolchain in the first place instead of just `apt-get install gcc-powerpc-vle` like a normal person.
+
+### In the Beginning, There Was Apple, Motorola, and IBM
+
+Once upon a time (1991), the AIM alliance (Apple, IBM, Motorola) came together to create the PowerPC architecture. What started as a desktop computing revolution would eventually become the workhorse of embedded systems—powering everything from the infrastructure that keeps civilization running to the vehicles you drive.
+
+**The great migration:**
+- **IBM** focused on servers and the POWER line (eventually becoming Power Systems and Power10/Power11), leaving embedded PowerPC to Motorola's semiconductor division
+- **Apple** went to Intel in 2005 (then ditched Intel for Apple Silicon in 2020, completing the migration)
+- **Motorola** (then Freescale, then NXP) kept the embedded PowerPC torch burning
+
+But here's where it gets interesting: Motorola's embedded microcontroller line, the HC16/HC12 family, was gradually replaced by PowerPC Embedded. This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
+
+### The Workhorses: Where PowerPC Actually Lives
+
+While PowerPC was making headlines in desktop computers (Power Mac G5, anyone?), the real action was happening in the trenches:
+
+- **Caterpillar ECMs**: Every single Caterpillar engine control module runs PowerPC. Every construction site, every mining operation, every ship, every generator—the infrastructure of modern civilization is running on PowerPC.
+- **John Deere**: Agricultural and construction equipment ECMs running PowerPC
+- **Automotive ECUs**: Engine control modules, transmission controllers, brake systems—virtually every major automaker has used PowerPC at some point
+- **Industrial automation**: Factory floors, process control, robotics
+- **Aerospace and defense**: Mission-critical systems where reliability matters more than the latest CPU architecture
 
 ### The VLE Saga: When GCC Said "Nah, Too Invasive"
 
@@ -61,7 +82,21 @@ Just how big is this problem? Let's put it in perspective:
 
 All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck with proprietary toolchains, out-of-tree GCC forks, or... *this installer*.
 
-**The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries with billions of deployed devices build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
+### NXP's "Low Cost" Devkits: Still Shipping in 2040
+
+In a move that perfectly illustrates the long-tail nature of embedded systems, NXP continues to sell their "Low Cost" development boards:
+- **DEVKIT-MPC5744P** ($109): For functional safety and motor control applications
+- **DEVKIT-MPC5748G** ($219): For secure gateway applications
+
+Both boards feature PowerPC VLE cores and come with NXP's promise of **15-20 year guaranteed availability**. These boards likely became available around 2016-2017 (when the MPC57xx family was ramping up), which means they'll be in production until roughly **2031-2037**—long after most of us have forgotten what a PowerPC even is.
+
+But here's the kicker: these development boards are just the tip of the iceberg. The actual microcontrollers they're based on will be in production and supported for decades longer. Conservative estimate? You'll be able to buy new MPC5744P and MPC5748G chips well into the **2040s**, possibly even **2050s**.
+
+**The Boeing 747 (2080) is going to be using PowerPC VLE.** Think about it: aircraft are designed with 40-50 year service lives. The 747 production ended in 2023, but those planes will still be flying in 2070+. And if they need spare ECMs or avionics controllers? Yep, PowerPC. Because when you need to maintain mission-critical systems that cost hundreds of millions of dollars, you don't swap out the CPU architecture—you stick with what works, what's certified, and what's available for the next 20 years.
+
+Automotive, aerospace, heavy machinery, and industrial control systems don't move at the pace of desktop computing. When you're designing a system that needs to work reliably for 20+ years, you choose components with 20+ year lifespans. And PowerPC VLE, despite GCC's rejection, is exactly that.
+
+**The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries with billions of deployed devices—and products that will be in production until 2050—build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
 
 ## Step 1: Download the Installer
 
