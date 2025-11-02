@@ -126,8 +126,6 @@ Both boards feature PowerPC VLE cores and come with NXP's promise of **15-20 yea
 
 But here's the kicker: these development boards are just the tip of the iceberg. The actual microcontrollers they're based on will be in production and supported for decades longer. Conservative estimate? You'll be able to buy new MPC5744P and MPC5748G chips well into the **2040s**, possibly even **2050s**.
 
-**The Boeing 747 (2080) is going to be using PowerPC VLE.** Think about it: aircraft are designed with 40-50 year service lives. The 747 production ended in 2023, but those planes will still be flying in 2070+. And if they need spare ECMs or avionics controllers? Yep, PowerPC. Because when you need to maintain mission-critical systems that cost hundreds of millions of dollars, you don't swap out the CPU architecture—you stick with what works, what's certified, and what's available for the next 20 years.
-
 Automotive, aerospace, heavy machinery, and industrial control systems don't move at the pace of desktop computing. When you're designing a system that needs to work reliably for 20+ years, you choose components with 20+ year lifespans. And PowerPC VLE, despite GCC's rejection, is exactly that.
 
 **The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries with billions of deployed devices—and products that will be in production until 2050—build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
