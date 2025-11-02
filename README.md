@@ -64,10 +64,17 @@ Back in the day (circa 2012), CodeSourcery tried to merge PowerPC [VLE (Variable
 
 - **Result**: VLE support lived on in out-of-tree branches and forks (like `gcc-4.9.4` with VLE patches), maintained by NXP/CodeSourcery and the community, because FSF GCC proper wouldn't take it.
 
-So here we are in 2025, extracting installers and dealing with Java hell, because someone decided that maintaining clean codebase boundaries was more important than supporting an entire embedded architecture properly. And now you have to choose between:
-- Using an out-of-tree GCC fork—not just any fork, but **GCC 4.9** (released April 2014, with 4.9.4 in August 2016). That's right, we're stuck with an 11-year-old compiler because the maintainers said "too invasive." (if you can find it)
-- Paying for a proprietary toolchain with a dongle-based license system
-- Dealing with this installer nightmare
+So here we are in 2025, extracting installers and dealing with Java hell, because someone decided that maintaining clean codebase boundaries was more important than supporting an entire embedded architecture properly.
+
+### Compiler Options: Pick Your Poison
+
+When GCC rejected VLE support, developers were left with three equally unpleasant choices:
+
+1. **Out-of-tree GCC fork**—not just any fork, but **GCC 4.9** (released April 2014, with 4.9.4 in August 2016). That's right, we're stuck with an 11-year-old compiler because the maintainers said "too invasive." Good luck finding it.
+
+2. **Proprietary toolchains**—paying tens of thousands of dollars for toolchains with dongle-based licensing systems (looking at you, Green Hills).
+
+3. **This installer nightmare**—dealing with Java hell, Eclipse dependencies, and corporate bloatware just to get a free GCC toolchain that should have been a tarball.
 
 ### The Burning Platform: Why People Need Alternatives
 
@@ -96,8 +103,6 @@ This musical chairs game highlights a fundamental truth: the embedded systems ma
 
 When you're designing a Caterpillar ECM or a Boeing avionics controller, the compiler license cost is a rounding error compared to the certification and development costs. But when you're a small team, a startup, or an open-source project trying to work with PowerPC VLE? Those costs become prohibitive. The "burning platform" isn't just about GCC's rejection—it's about an entire ecosystem that forces developers into expensive, proprietary tools when open-source alternatives could work just fine.
 
-So here we are, extracting installers and building toolchains from scratch, because the alternative is either paying $10,000+ for a compiler license or using an 11-year-old GCC fork. 🎉
-
 ### The Scale of the Problem: Billions of Devices, Zero Mainline Support
 
 Just how big is this problem? Let's put it in perspective:
@@ -109,7 +114,7 @@ Just how big is this problem? Let's put it in perspective:
 - **Industrial automation, aerospace, and defense** systems rely on PowerPC for mission-critical applications.
 - As of 2010, [Power Architecture](https://en.wikipedia.org/wiki/Power_Architecture) was the **#1 worldwide market share leader in 32-bit microprocessors** (No. 2 in 64-bit CPUs), representing **$4.4 billion of the microprocessor market**.
 
-All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck with proprietary toolchains, out-of-tree GCC forks, or... *this installer*.
+All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck choosing between the three options above.
 
 ### NXP's "Low Cost" Devkits: Still Shipping in 2040
 
