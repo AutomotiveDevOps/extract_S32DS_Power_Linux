@@ -1,212 +1,353 @@
-# Extracting S32 Design Studio for Power Architecture: A Cautionary Tale
+# S32DS Power Linux Toolchain Extractor
 
-> **TL;DR**: NXP finally released the VLE GCC port after... *checks notes*... way too long. After jumping through too many hoops, dealing with Java hell, and contemplating whether Eclipse deserves to exist, we decided to take matters into our own hands. This repository contains scripts to extract the installer like a digital archaeologist and build a **sane toolchain installable with git** in 2025.
+> **One command. One .deb package. One toolchain ready to use.**
+> 
+> Extract the NXP S32 Design Studio for Power Architecture installer and package it as a clean, installable Debian package—no Java, no Eclipse, no activation keys, no corporate bloatware.
 
-## The Corporate Software Experience™
+## The Problem This Solves
 
-You know the drill:
+### The Burning Platform: Why You Can't Just `apt-get install gcc-powerpc-vle`
 
-1. Download a multi-GB installer binary
-2. Fight with Java version compatibility (because *of course* they bundled Java 1.6 or some cursed ancient version)
-3. Realize the installer requires 47 different system dependencies that conflict with your existing setup
-4. Discover it wants to install Eclipse (because who doesn't want to relive 2005?)
-5. Find out you need activation keys, license agreements, and a blood sacrifice to the corporate overlords
-6. Give up and decide to just extract the installer and use the actual tools directly
+You need to compile code for PowerPC VLE (Variable Length Encoding) embedded systems. The architecture powers billions of devices—from Caterpillar engine control modules to automotive ECUs, industrial automation systems to aerospace controllers. But here's the reality:
 
-**This project is step 6.**
+**GCC mainline rejected PowerPC VLE support in 2013** as "too invasive." This left developers with three terrible options:
 
-## Why This Exists
+1. **Out-of-tree GCC 4.9 fork** (from 2016) - buried in corporate installers, hard to find, 11+ years old
+2. **Proprietary toolchains** - $10,000+ per seat, hardware dongles, licensing nightmares (Green Hills, etc.)
+3. **NXP's official installer** - multi-GB binary, requires Java 1.6, Eclipse bloatware, activation keys, and generally makes you question life choices
 
-After too many hoops to get this installer running with Java issues, and the thought of ever touching Eclipse for free being repulsive, we just decided to ~~jailbreak~~ extract the installer and move forward in 2025 with a sane toolchain that:
+### What the Official Installer Experience Looks Like
 
-- ✅ Can be installed with git (like civilized software)
-- ✅ Doesn't require activation keys (because we own the hardware, dammit)
-- ✅ Doesn't force Eclipse on us (because 2025)
-- ✅ Actually works in a modern Linux environment
-- ✅ Can be version-controlled and automated
+1. Download a 1.1GB `.bin` installer binary
+2. Fight with Java version compatibility (needs ancient Java 1.6 or 1.7)
+3. Discover it requires 47 different system dependencies that conflict with modern Linux
+4. Watch it try to install Eclipse (because who doesn't want to relive 2005?)
+5. Fill out license agreements, activation forms, and corporate paperwork
+6. Realize you just wanted the compiler, not a 500MB IDE
+7. Give up and extract the installer manually
 
-## PowerPC Lore
+**This project solves steps 1-7 with one command.**
 
-Before we dive into extracting this mess, let's talk about *why* you're stuck using a proprietary toolchain in the first place instead of just `apt-get install gcc-powerpc-vle` like a normal person.
+## What This Enables
 
-### In the Beginning, There Was Apple, Motorola, and IBM
+### 🎯 Single Command Workflow
 
-Once upon a time (1991), the [AIM alliance](https://en.wikipedia.org/wiki/AIM_alliance) (Apple, IBM, Motorola) came together to create the [PowerPC architecture](https://en.wikipedia.org/wiki/PowerPC). What started as a desktop computing revolution would eventually become the workhorse of embedded systems—powering everything from the infrastructure that keeps civilization running to the vehicles you drive.
+```bash
+python3 extract_and_package.py
+dpkg -i s32ds-power-linux_*.deb
+```
 
-**The great migration:**
-- **IBM** focused on servers and the [POWER](https://en.wikipedia.org/wiki/IBM_POWER) line (eventually becoming [Power Systems](https://en.wikipedia.org/wiki/IBM_Power_Systems) and Power10/Power11), leaving embedded PowerPC to Motorola's semiconductor division
-- **Apple** went to Intel in 2005 (then ditched Intel for [Apple Silicon](https://en.wikipedia.org/wiki/Apple_silicon) in 2020, completing the migration)
-- **Motorola** (then [Freescale Semiconductor](https://en.wikipedia.org/wiki/Freescale_Semiconductor), then [NXP Semiconductors](https://en.wikipedia.org/wiki/NXP_Semiconductors)) kept the embedded PowerPC torch burning
+That's it. No manual steps, no repeated JAR extraction, no hunting for components.
 
-### The 68k Family Tree: From Desktop to Embedded
+### ✅ What You Get
 
-But here's where it gets interesting. Before PowerPC, there was the [Motorola 68000 series](https://en.wikipedia.org/wiki/Motorola_68000_series) (68k family), introduced in 1979 with the 68000 processor. These 32-bit CISC processors powered the computing revolution of the 1980s: the original Apple Macintosh (1984), Commodore Amiga, Atari ST, and even the Sega Genesis game console. The 68000's clean, orthogonal instruction set made it a programmer's dream—until RISC architectures started taking over in the 1990s.
+A complete, installable Debian package (`s32ds-power-linux_*.deb`) containing:
 
-**The embedded evolution:**
-- The [68HC11](https://en.wikipedia.org/wiki/Motorola_68HC11) (1984) brought the 68k architecture to microcontrollers, becoming a staple in automotive and industrial control
-- The [68HC12](https://en.wikipedia.org/wiki/Freescale_68HC12) expanded on the HC11 with enhanced instruction sets and better performance
-- The [68HC16](https://en.wikipedia.org/wiki/Motorola_68HC16) added more features for automotive applications
+1. **PowerPC GCC Compiler** (`powerpc-eabivle-4.9`)
+   - Full GCC 4.9.4 toolchain with VLE support
+   - All standard tools: `gcc`, `g++`, `gdb`, `ld`, `objdump`, etc.
+   - Installed to `/usr/local/s32ds-power-linux/powerpc-eabivle-4_9/`
 
-These 8/16-bit microcontroller variants of the 68k family dominated embedded systems throughout the 1980s and 1990s. But as applications demanded more processing power, Motorola's embedded microcontroller line—the HC16/HC12 family—was gradually replaced by [PowerPC Embedded](https://en.wikipedia.org/wiki/PowerPC#Embedded_PowerPC). This wasn't just a silicon transition—it was the foundation of an entire industry shift. The automotive and industrial control world moved from 8/16-bit microcontrollers to 32-bit PowerPC, and they never looked back.
+2. **P&E Micro GDB Server**
+   - `pegdbserver_power_console` for PowerPC debugging
+   - Complete GDI (GDB Debug Interface) plugin system
+   - Installed to `/usr/local/s32ds-power-linux/pegdbserver/`
 
-### The Workhorses: Where PowerPC Actually Lives
+3. **e200 EWL Runtime Library**
+   - Embedded C/C++ standard library for PowerPC e200 cores
+   - Complete headers and runtime components
+   - Installed to `/usr/local/s32ds-power-linux/e200_ewl2/`
 
-While PowerPC was making headlines in desktop computers ([Power Mac G5](https://en.wikipedia.org/wiki/Power_Mac_G5), anyone?), the real action was happening in the trenches:
+4. **USB Drivers**
+   - udev rules for P&E Micro debugging hardware (`58-pemicro.rules`)
+   - USB library (`libp64-0.1.so.4`)
+   - Automatically installed to system locations via package postinst script
 
-- **Caterpillar ECMs**: Every single Caterpillar engine control module runs PowerPC. Every construction site, every mining operation, every ship, every generator—the infrastructure of modern civilization is running on PowerPC.
-- **John Deere**: Agricultural and construction equipment ECMs running PowerPC
-- **Automotive ECUs**: Engine control modules, transmission controllers, brake systems—virtually every major automaker has used PowerPC at some point
-- **Industrial automation**: Factory floors, process control, robotics
-- **Aerospace and defense**: Mission-critical systems where reliability matters more than the latest CPU architecture
+### 🚀 What This Enables
+
+- **Version Control**: Toolchain can be committed to git, versioned, and distributed
+- **CI/CD Integration**: Automate toolchain installation in build pipelines
+- **Containerization**: Include toolchain in Docker images without bloated installers
+- **Reproducible Builds**: Same toolchain version across all developers and build systems
+- **No Java Required**: Pure Python extraction, no runtime dependencies
+- **Modern Linux Support**: Works on current distributions without compatibility hacks
+- **Clean Installation**: Standard Debian package management, easy uninstall
+- **System Integration**: USB drivers automatically configured via udev rules
+
+## The Burning Platform: Historical Context
 
 ### The VLE Saga: When GCC Said "Nah, Too Invasive"
 
-Back in the day (circa 2012), CodeSourcery tried to merge PowerPC [VLE (Variable Length Encoding)](https://en.wikipedia.org/wiki/PowerPC#Variable_Length_Encoding) support into GCC mainline. VLE is part of the [Power ISA Book E](https://en.wikipedia.org/wiki/Power_ISA#Book_E) specification, designed specifically for embedded systems. This would have given us a proper open-source compiler for embedded PowerPC chips without needing $10,000 hardware dongles for smoke testing (looking at you, Green Hills).
+Back in 2012, CodeSourcery tried to merge PowerPC [VLE (Variable Length Encoding)](https://en.wikipedia.org/wiki/PowerPC#Variable_Length_Encoding) support into GCC mainline. VLE is part of the [Power ISA Book E](https://en.wikipedia.org/wiki/Power_ISA#Book_E) specification, designed specifically for embedded systems.
 
 **Here's what happened:**
 
-- **Oct 2012**: CodeSourcery submitted their initial "[PATCH] PowerPC VLE port" to `gcc-patches`. Reviewers immediately started complaining about how "invasive" the changes were and how it would "complicate the common parts of the rs6000 port."
+- **Oct 2012**: CodeSourcery submitted "[PATCH] PowerPC VLE port" to `gcc-patches`. Reviewers complained about "invasive" changes.
 
-- **Mar 2013**: On `gcc@`, David Edelsohn delivered the verdict: full VLE support was **too invasive** and would "significantly complicate the common parts of the rs6000 port." Translation: "Your patch works, but we don't want it in our tree because reasons." They suggested *maybe* some less disruptive pieces could go in. (Source: [gcc.gnu.org](https://gcc.gnu.org))
+- **Mar 2013**: GCC maintainer David Edelsohn delivered the verdict: full VLE support was **too invasive** and would "significantly complicate the common parts of the rs6000 port." Translation: "Your patch works, but we don't want it in our tree."
 
-- **2016-2017**: Binutils maintainers were more reasonable—they accepted VLE bits for BFD/opcodes as groundwork for a future GCC port. But the GCC port itself? Still nowhere to be seen. (Source: [sourceware.org](https://inbox.sourceware.org))
+- **2016-2017**: Binutils maintainers accepted VLE bits for BFD/opcodes, but the GCC port itself remained out-of-tree.
 
-- **Result**: VLE support lived on in out-of-tree branches and forks (like `gcc-4.9.4` with VLE patches), maintained by NXP/CodeSourcery and the community, because FSF GCC proper wouldn't take it.
+- **Result**: VLE support exists only in out-of-tree branches (like `gcc-4.9.4` with VLE patches), maintained by NXP/CodeSourcery. Millions of embedded developers are stuck with ancient compilers or expensive proprietary alternatives.
 
-So here we are in 2025, extracting installers and dealing with Java hell, because someone decided that maintaining clean codebase boundaries was more important than supporting an entire embedded architecture properly.
+### The Scale of the Problem
 
-### Compiler Options: Pick Your Poison
+- **Over 1 billion Power Architecture chips** shipped since 1991
+- **Every Caterpillar ECM** runs PowerPC—every construction site, mining operation, ship, generator
+- **Nearly every 2009 GM North America vehicle** had PowerPC processors in engine controllers
+- **$4.4 billion microprocessor market** (as of 2010), #1 in 32-bit processors
+- **Hardware still shipping in 2040s**: NXP guarantees 15-20 year availability for development boards
 
-When GCC rejected VLE support, developers were left with three equally unpleasant choices:
+All of this, and GCC mainline said the VLE patch was "too invasive." So here we are in 2025, extracting installers because the free toolchain should have been a tarball.
 
-1. **Out-of-tree GCC fork**—not just any fork, but **GCC 4.9** (released April 2014, with 4.9.4 in August 2016). That's right, we're stuck with an 11-year-old compiler because the maintainers said "too invasive." Good luck finding it.
+### The Proprietary Alternative
 
-2. **Proprietary toolchains**—paying tens of thousands of dollars for toolchains with dongle-based licensing systems (looking at you, Green Hills).
+When GCC rejected VLE support, proprietary vendors filled the vacuum:
 
-3. **This installer nightmare**—dealing with Java hell, Eclipse dependencies, and corporate bloatware just to get a free GCC toolchain that should have been a tarball.
+- **Green Hills Software**: "If you have to ask, you can't afford it" — toolchains costing tens of thousands per seat, hardware dongles
+- **diab Compiler**: Chosen for IP protection (non-GPL), not performance
+- **Wind River**: Acquired by Intel for $884M (2009), sold to TPG for billions (2022)
 
-### The Burning Platform: Why People Need Alternatives
+The "burning platform" isn't just GCC's rejection—it's an ecosystem forcing developers into expensive, proprietary tools when open-source alternatives could work perfectly fine.
 
-**Green Hills Software: "If You Have to Ask, You Can't Afford It"**
+## Installation and Usage
 
-When GCC rejected VLE support, it created a vacuum that proprietary vendors were all too happy to fill. Enter Green Hills Software with their MULTI IDE and compilers. Their pricing philosophy? **If you have to ask, you can't afford it.** 
+### Prerequisites
 
-We're talking about toolchains that cost tens of thousands of dollars per seat, often with hardware dongle requirements that make licensing a nightmare. For small teams, startups, or anyone just trying to smoke-test their code, this is a non-starter. The cost of entry is so high that many developers simply can't afford to properly validate their embedded code—unless they're working at a major automotive OEM with a massive tooling budget.
+- Python 3.6+ (no other dependencies required)
+- `unzip` command-line tool (for handling corrupted ZIP files)
+- `dpkg-deb` (standard on Debian/Ubuntu systems, or install `dpkg-dev`)
 
-**The diab Compiler: Picked for IP, Not Performance**
+### Quick Start
 
-Then there's the diab compiler (also known as DIB, or DiabData). This proprietary C/C++ compiler has an interesting history: it started life at Wind River Systems, where it became the default compiler for [VxWorks](https://en.wikipedia.org/wiki/VxWorks), their real-time operating system. Companies chose it not necessarily because it was better than GCC, but because of **intellectual property protection**.
+1. **Download the installer**:
+   - Get `S32DS_Power_Linux_v*.bin` from [NXP S32 Design Studio](https://www.nxp.com/design/design-center/software/automotive-software-and-tools/s32-design-studio-ide/s32-design-studio-for-power-architecture:S32DS-PA)
+   - Place it in this repository directory
 
-You see, GCC is released under the GPL, which means if you link code compiled with GCC into a proprietary product, you're supposed to make your source available under GPL. For companies with proprietary firmware, proprietary algorithms, or proprietary anything, this is a problem. The diab compiler was specifically chosen because it has **proprietary licensing terms** that allow companies to keep their code closed—even if the compiler itself is based on decades-old technology.
+2. **Extract and package**:
+   ```bash
+   python3 extract_and_package.py
+   ```
+   
+   Or use the Makefile:
+   ```bash
+   make
+   ```
 
-**The Corporate Shuffle: Wind River's Journey**
+3. **Install the package**:
+   ```bash
+   sudo dpkg -i s32ds-power-linux_*.deb
+   ```
 
-Wind River's ownership saga tells its own story:
-- **2009**: Intel acquired Wind River for $884 million, thinking embedded systems would be the next big thing
-- **2018**: Intel divested Wind River to TPG Capital after realizing embedded software wasn't their core competency
-- **2022**: Aptiv PLC (formerly Delphi Automotive) acquired Wind River from TPG for **$4.3 billion**—that's right, the value more than quadrupled in just four years
+4. **Use the toolchain**:
+   ```bash
+   /usr/local/s32ds-power-linux/powerpc-eabivle-4_9/bin/powerpc-eabivle-gcc --version
+   ```
 
-This musical chairs game highlights a fundamental truth: the embedded systems market is worth billions, but the tools are fragmented, expensive, and often chosen for IP protection rather than technical merit. Companies are paying premium prices for compilers that are often technically inferior to GCC, simply because they need to protect their intellectual property.
+### Command-Line Options
 
-**The Real Cost**
-
-When you're designing a Caterpillar ECM or a Boeing avionics controller, the compiler license cost is a rounding error compared to the certification and development costs. But when you're a small team, a startup, or an open-source project trying to work with PowerPC VLE? Those costs become prohibitive. The "burning platform" isn't just about GCC's rejection—it's about an entire ecosystem that forces developers into expensive, proprietary tools when open-source alternatives could work just fine.
-
-### The Scale of the Problem: Billions of Devices, Zero Mainline Support
-
-Just how big is this problem? Let's put it in perspective:
-
-- **Over 1 billion Power Architecture chips** have been shipped since 1991 across automotive, industrial automation, aerospace, defense, medical devices, and telecommunications.
-- **Every Caterpillar ECM** (Engine Control Module) runs on PowerPC—that's every heavy equipment engine control system on the planet. Think construction sites, mining operations, ships, generators—the infrastructure that keeps civilization running.
-- **Nearly every 2009 GM North America vehicle** had an [MPC5xx](https://en.wikipedia.org/wiki/MPC5xx) PowerPC processor in its engine controller. Ford, Jaguar, Land Rover, and Volvo vehicles historically used PowerPC-based chips in engines and transmissions.
-- **Automotive ECUs everywhere**: Engine control modules, transmission controllers, electronic brake systems (Continental AG collaborated with Freescale on tri-core [PowerPC e200](https://en.wikipedia.org/wiki/PowerPC_e200) processors for brake systems), and more.
-- **Industrial automation, aerospace, and defense** systems rely on PowerPC for mission-critical applications.
-- As of 2010, [Power Architecture](https://en.wikipedia.org/wiki/Power_Architecture) was the **#1 worldwide market share leader in 32-bit microprocessors** (No. 2 in 64-bit CPUs), representing **$4.4 billion of the microprocessor market**.
-
-All of this, and GCC mainline maintainers decided the VLE support patch was "too invasive." So millions of embedded systems developers—from automotive OEMs to industrial automation companies—are stuck choosing between the three options above.
-
-### NXP's "Low Cost" Devkits: Still Shipping in 2040
-
-In a move that perfectly illustrates the long-tail nature of embedded systems, NXP continues to sell their "Low Cost" development boards:
-- **DEVKIT-MPC5744P** ($109): For functional safety and motor control applications
-- **DEVKIT-MPC5748G** ($219): For secure gateway applications
-
-Both boards feature PowerPC VLE cores and come with NXP's promise of **15-20 year guaranteed availability**. These boards likely became available around 2016-2017 (when the MPC57xx family was ramping up), which means they'll be in production until roughly **2031-2037**—long after most of us have forgotten what a PowerPC even is.
-
-But here's the kicker: these development boards are just the tip of the iceberg. The actual microcontrollers they're based on will be in production and supported for decades longer. Conservative estimate? You'll be able to buy new MPC5744P and MPC5748G chips well into the **2040s**, possibly even **2050s**.
-
-Automotive, aerospace, heavy machinery, and industrial control systems don't move at the pace of desktop computing. When you're designing a system that needs to work reliably for 20+ years, you choose components with 20+ year lifespans. And PowerPC VLE, despite GCC's rejection, is exactly that.
-
-**The moral of the story**: Sometimes the best patches get rejected not because they're wrong, but because they're "too invasive." Meanwhile, entire industries with billions of deployed devices—and products that will be in production until 2050—build around proprietary workarounds. But hey, at least the GCC maintainers' codebase stayed clean! 🎉
-
-## Step 1: Download the Installer
-
-**Looking for**: NXP Embedded GCC for Power Architecture, v4.9.4 build 1705 - Linux
-
-**Source**: [NXP S32 Design Studio for Power Architecture](https://www.nxp.com/design/design-center/software/automotive-software-and-tools/s32-design-studio-ide/s32-design-studio-for-power-architecture:S32DS-PA)
-
-Download the Linux installer binary. It's probably named something like `S32DS_Power_Linux_v*.bin` and weighs in at several hundred megabytes of corporate bloatware. Inside this installer, we're specifically hunting for the GCC 4.9.4 toolchain (build 1705) that should have been a simple tarball.
-
-## Step 2: Extract the Installer
-
-The NXP installer is a self-extracting binary (`.bin`) that contains a shell script wrapper followed by a ZIP archive payload. The extraction process happens in stages:
-
-### 2.1: Extract the Installer Payload (`extract_payload.py`)
-
-Extract the ZIP payload from the self-extracting `.bin` installer binary. This is the **first step** in the extraction process.
-
-**Usage**:
 ```bash
-python3 extract_payload.py
+python3 extract_and_package.py [input.bin] [--version VERSION] [--output OUTPUT.deb]
 ```
 
-See the script's docstring for detailed documentation.
+- **`input.bin`**: Path to the `.bin` installer file (auto-detected if not provided)
+- **`--version VERSION`**: Package version string (default: `2017.1`)
+- **`--output OUTPUT.deb`**: Output `.deb` filename (default: `s32ds-power-linux_VERSION_amd64.deb`)
 
-### 2.2: Extract All Nested Archives (`extract_all_zips.py`)
+**Examples:**
 
-**Purpose**: Recursively extract all nested ZIP files until none remain.
-
-This script finds all `.zip` files, extracts them in place (removing the original ZIP), and repeats until no more ZIP files are found. Useful for fully unpacking the installer payload without stopping.
-
-**Usage**:
 ```bash
-python3 extract_all_zips.py
+# Auto-detect .bin file, use defaults
+python3 extract_and_package.py
+
+# Specify input file and version
+python3 extract_and_package.py S32DS_Power_Linux_v2017.R1_b171024.bin --version 2017.1
+
+# Custom output filename
+python3 extract_and_package.py --output my-toolchain.deb
 ```
 
-**Note**: By default, this script excludes `installer_payload.zip` from extraction to avoid re-extracting the main payload.
+## How It Works
 
-### 2.3: Extract Until Targets Found (`extract_until_targets.py`)
+### Extraction Workflow
 
-**Purpose**: Extract archives recursively until PowerPC GCC and GDB server components are found.
+The script performs a complete extraction and packaging workflow:
 
-This script extracts JAR and ZIP files until it finds:
-1. PowerPC GCC compiler (in `Cross_Tools` directories)
-2. P&E GDB Server (`pegdbserver_power_console` binary)
-3. GDI directory (for GDB server)
+1. **Extract `.bin` → `payload.zip`**
+   - Finds the ZIP payload at the first `PK\x03\x04` signature (ZIP header)
+   - Extracts everything from that offset to end of file
 
-It stops automatically once all targets are found, saving time if you only need specific components.
+2. **Extract `payload.zip` → `installer/`**
+   - Extracts the installer payload to `installer/` directory
+   - Uses `unzip` command (more tolerant of corrupted ZIP files than Python's zipfile)
 
-**Usage**:
-```bash
-python3 extract_until_targets.py
+3. **Extract JAR files (3 iterations)**
+   - Finds all `.jar` files within `installer/` directory
+   - Extracts each JAR to a directory with the same name (without `.jar` extension)
+   - Removes the original JAR file
+   - **Loops automatically** until no more JARs are found (handles nested JARs)
+   - Typically requires 2-3 iterations as nested JARs are extracted
+
+4. **Extract remaining ZIP files**
+   - Finds and extracts any remaining `.zip` files recursively
+   - Handles corrupted ZIP files gracefully
+
+5. **Locate deliverables**
+   - Searches for:
+     - PowerPC compiler: `powerpc-eabivle-4_9` directory
+     - GDB server: `pegdbserver_power_console` binary in Eclipse plugin
+     - EWL runtime: `e200_ewl2` directory
+     - USB drivers: `libusb_64_32` directory with udev rules
+
+6. **Build DEB package**
+   - Creates package structure in temporary directory
+   - Copies deliverables to `/usr/local/s32ds-power-linux/`
+   - Generates Debian control files (`control`, `postinst`)
+   - Packages with `dpkg-deb`
+
+### Package Structure
+
+The resulting `.deb` package installs to:
+
+```
+/usr/local/s32ds-power-linux/
+├── powerpc-eabivle-4_9/          # GCC compiler toolchain
+│   ├── bin/                       # All compiler binaries
+│   ├── lib/                       # Libraries
+│   ├── include/                   # Headers
+│   └── share/                     # Documentation, man pages
+├── pegdbserver/                   # P&E GDB server
+│   ├── pegdbserver_power_console  # Main server binary
+│   └── gdi/                       # GDB Debug Interface plugins
+├── e200_ewl2/                     # EWL runtime library
+│   ├── EWL_C/                     # C runtime
+│   ├── EWL_C++/                   # C++ runtime
+│   └── EWL_Runtime/               # Runtime components
+└── drivers/                       # USB drivers (reference)
+    ├── 58-pemicro.rules           # udev rules
+    └── libp64-0.1.so.4            # USB library
 ```
 
-## Current Status
+### Post-Install Script
 
-This repository contains extraction scripts to:
-- Extract the ZIP payload from `.bin` installer (`extract_payload.py`)
-- Recursively extract all nested ZIP files (`extract_all_zips.py`)
-- Extract until specific target components are found (`extract_until_targets.py`)
+The package includes a `postinst` script that automatically:
+
+1. Copies `58-pemicro.rules` to `/lib/udev/rules.d/`
+2. Copies `libp64-0.1.so.4` to `/usr/lib/`
+3. Reloads udev rules (`udevadm control --reload-rules`)
+4. Runs `ldconfig` to register the USB library
+
+This enables P&E Micro debugging hardware to work immediately after installation.
+
+## Technical Details
+
+### Why Not Python's zipfile Module?
+
+The installer ZIP files contain corrupted "extra fields" that Python's `zipfile` module cannot handle (raises `BadZipFile: Corrupt extra field`). The script uses the system `unzip` command as a fallback, which is more tolerant of these corruptions.
+
+### Directory Scoping
+
+All extraction is scoped to the `installer/` directory only. The script:
+- Extracts payload ZIP to `installer/`
+- Searches for JAR/ZIP files only within `installer/`
+- Never touches files outside the extraction directory
+
+This prevents accidental extraction of unrelated archives in the project directory.
+
+### Nested JAR Handling
+
+JAR files can contain nested JAR files, which themselves can contain more JAR files. The script automatically loops:
+- **Iteration 1**: Extracts top-level JARs
+- **Iteration 2**: Extracts JARs that were inside the first JARs
+- **Iteration 3**: Extracts JARs that were nested even deeper
+- Continues until no more JARs are found
+
+The script handles this automatically—no manual repetition required.
+
+## Repository Structure
+
+```
+extract_S32DS_Power_Linux/
+├── extract_and_package.py    # Main extraction and packaging script
+├── Makefile                   # Convenience wrapper (optional)
+├── README.md                  # This file
+├── LICENSE                    # License information
+└── S32DS_Power_Linux_*.bin    # Installer file (you download this)
+```
+
+### Generated Files (can be cleaned up)
+
+- `installer/` - Extracted installer directory (temporary, removed by `make clean`)
+- `installer_payload.zip` - Intermediate ZIP payload (temporary)
+- `s32ds-power-linux_*.deb` - Final Debian package (keep this!)
+
+## Cleaning Up
+
+Remove temporary extraction files:
+
+```bash
+make clean
+```
+
+Or manually:
+
+```bash
+rm -rf installer installer_payload.zip
+```
+
+The `.deb` package is kept (it's the final product).
+
+## Troubleshooting
+
+### "No .bin file found"
+
+Place the `.bin` installer file in the repository directory, or specify the path:
+
+```bash
+python3 extract_and_package.py /path/to/S32DS_Power_Linux_v*.bin
+```
+
+### "BadZipFile: Corrupt extra field"
+
+This is normal—the script automatically uses `unzip` command as a fallback. Make sure `unzip` is installed:
+
+```bash
+sudo apt-get install unzip  # Debian/Ubuntu
+```
+
+### "Deliverables not found"
+
+If extraction completes but deliverables aren't found, the installer structure may have changed. Check the extracted `installer/` directory structure and verify paths in `find_deliverables()` function.
+
+### Package installation fails
+
+Check that `dpkg-deb` is available:
+
+```bash
+sudo apt-get install dpkg-dev  # Debian/Ubuntu
+```
 
 ## Contributing
 
-Found a better way to extract this mess? Pull requests welcome. Bonus points if your solution requires fewer steps than the original installer.
+Found a better way to extract this? Improvements welcome! Areas that could use help:
+
+- Support for newer installer versions
+- Detection of installer structure changes
+- Additional package formats (RPM, tarball)
+- CI/CD integration examples
+
+## License
+
+See `LICENSE` file. This tool extracts and repackages NXP's toolchain for easier distribution. The extracted toolchain itself remains under NXP's license terms.
 
 ## Disclaimer
 
-This is an educational exercise in reverse-engineering corporate installers. We're not responsible if NXP's lawyers show up at your door demanding to know why you didn't use their official installer (though honestly, they probably don't care - we're just trying to use the *free* GCC toolchain that should have been distributed as a tarball in the first place).
+This is an educational tool to extract and repackage the free GCC toolchain that NXP distributes. We're not responsible if NXP's lawyers show up at your door (though honestly, they probably don't care—we're just trying to use the *free* toolchain that should have been a tarball in the first place).
+
+The toolchain extracted here is the same free GCC 4.9.4 with VLE support that NXP provides—just packaged in a sane, installable format instead of buried in a multi-GB installer with Java and Eclipse.
 
 ---
 
 *Made with ❤️ and a healthy dose of frustration with corporate software development tools.*
 
+**From installer hell to one command. From corporate bloatware to clean Debian packages. This is what proper toolchain distribution should look like.**
